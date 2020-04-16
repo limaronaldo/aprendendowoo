@@ -2,14 +2,24 @@ const next = require( 'next' );
 const express = require( 'express');
 const wooConfig = require( './wooConfig' );
 
-const WooCommerceAPI = require('woocommerce-api');
+// const WooCommerceAPI = require('woocommerce-api');
 
-const WooCommerce = new WooCommerceAPI({
+// const WooCommerce = new WooCommerceAPI({
+//     url: wooConfig.siteUrl,
+//     consumerKey: wooConfig.consumerKey,
+//     consumerSecret: wooConfig.consumerSecret,
+//     wpAPI: true,
+//     version: 'wc/v1'
+// });
+
+const WooCommerceRestApi = require("@woocommerce/woocommerce-rest-api").default;
+// import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api"; // Supports ESM
+
+const WooCommerce = new WooCommerceRestApi({
     url: wooConfig.siteUrl,
     consumerKey: wooConfig.consumerKey,
     consumerSecret: wooConfig.consumerSecret,
-    wpAPI: true,
-    version: 'wc/v1'
+  version: 'wc/v3'
 });
 
 const port = 3000;
@@ -22,9 +32,16 @@ app.prepare()
         const server = express();
 
         server.get( '/getProducts', ( req, response ) => {
-            WooCommerce.getAsync('products').then(function(result) {
-                return JSON.parse(result.toJSON().body);
-              });
+            // WooCommerce.getAsync('products').then(function(result) {
+            //     return JSON.parse(result.toJSON().body);
+            //   });
+            WooCommerce.get("products")
+                .then((response) => {
+                    console.log(response.data);
+                })
+                .catch((error) => {
+                    console.log(error.response.data);
+                });
         });
 
         server.get( '*', ( req, res ) => {
